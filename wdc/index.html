@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://connectors.tableau.com/libs/tableauwdc-2.4.latest.js" type="text/javascript"></script>
+
+    <script>
+      (function () {
+        var myConnector = tableau.makeConnector();
+        
+        // Định nghĩa schema cho dữ liệu
+        myConnector.getSchema = function (schemaCallback) {
+          var cols = [
+            { id: "ma_hoa_don", dataType: tableau.dataTypeEnum.string },
+            { id: "nam", dataType: tableau.dataTypeEnum.int },
+            { id: "thang", dataType: tableau.dataTypeEnum.int },
+            { id: "api_code", dataType: tableau.dataTypeEnum.string },
+            { id: "ma_cua_hang", dataType: tableau.dataTypeEnum.string },
+            { id: "ma_kh", dataType: tableau.dataTypeEnum.string },
+            { id: "thong_tin_nhom_kh", dataType: tableau.dataTypeEnum.string },  // Thêm trường thong_tin_nhom_kh
+            { id: "nhom_hang", dataType: tableau.dataTypeEnum.string },  // Thêm trường nhom_hang
+            { id: "mat_hang", dataType: tableau.dataTypeEnum.string },  // Thêm trường mat_hang
+            { id: "sl_ban", dataType: tableau.dataTypeEnum.int },  // Thêm trường sl_ban
+            { id: "don_gia", dataType: tableau.dataTypeEnum.float },  // Thêm trường don_gia
+            { id: "tam_tinh", dataType: tableau.dataTypeEnum.float }  // Thêm trường tam_tinh
+          ];
+
+          var tableSchema = {
+            id: "orderTable",
+            alias: "Order Data",
+            columns: cols
+          };
+
+          schemaCallback([tableSchema]);
+        };
+
+        // Fetch dữ liệu từ API Django
+        myConnector.getData = function (table, doneCallback) {
+          fetch("http://127.0.0.1:8000/orders/")
+              .then(response => response.json())
+              .then(data => {
+                  var tableData = [];
+                  data.forEach(order => {
+                      // Duyệt qua từng mặt hàng trong hóa đơn
+                      order.invoicedetail_set.forEach(item => {
+                          tableData.push({
+                              // Thông tin hóa đơn
+                              ma_hoa_don: order.ma_hoa_don,
+                              nam: order.nam,
+                              thang: order.thang,
+                              api_code: order.api_code,
+                              ma_cua_hang: order.ma_cua_hang.ma_cua_hang,
+                              ma_kh: order.ma_kh.ma_kh,
+                              thong_tin_nhom_kh: order.ma_kh.ma_nhom_kh,
+                              nhom_hang: item.ma_hang.ma_nhom_hang.nhom_hang,
+                              mat_hang: item.ma_hang.mat_hang,
+
+                              sl_ban: item.sl_ban,
+                              don_gia: parseFloat(item.ma_hang.don_gia),
+                              tam_tinh: parseFloat(item.tam_tinh),
+
+                             
+                              
+                          });
+                      });
+                  });
+                  table.appendRows(tableData);
+                  doneCallback();
+              });
+      };
+      
+        tableau.registerConnector(myConnector);
+      })();
+
+      // Hàm gọi khi người dùng nhấn nút
+      function submitForm() {
+        tableau.connectionName = "Django Product API";
+        tableau.submit();
+      }
+      
+    </script>
+  </head>
+  <body>
+    <h1>Django Product API Connector</h1>
+    <button onclick="submitForm()">Get Data</button>
+  </body>
+</html>

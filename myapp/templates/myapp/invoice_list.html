@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Đơn Hàng</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        form {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Pagination styling */
+        .pagination {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .pagination a, .pagination strong {
+            display: inline-block;
+            margin: 0 5px;
+            padding: 8px 12px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            color: #333;
+        }
+
+        .pagination a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .pagination strong {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #333;
+        }
+
+        .pagination a.disabled, .pagination a.disabled:hover {
+            color: #ccc;
+            border-color: #ccc;
+            cursor: not-allowed;
+            background-color: transparent;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+        }
+
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .add-button-container {
+            position: relative;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .add-button {
+            width: 40px;
+            height: 40px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .options {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 50px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            min-width: 200px
+        }
+
+        .options a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #ddd;
+            transition: background-color 0.3s;
+        }
+
+        .options a:last-child {
+            border-bottom: none;
+        }
+
+        .options a:hover {
+            background-color: #f2f2f2;
+        }
+
+        /* Toggle option visibility */
+        .add-button:focus + .options,
+        .add-button:active + .options {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h1>Danh Sách Đơn Hàng</h1>
+    <div class="add-button-container">
+        <button class="add-button" onclick="toggleOptions()">+</button>
+        <div class="options" id="options">
+            <a href="{% url 'create_invoice' %}">Thêm đơn mới</a>
+            <a href="#" onclick="document.getElementById('file-input').click();">Thêm dữ liệu dạng file</a>
+            <input type="file" id="file-input" style="display: none;" accept=".xlsx, .xls" onchange="handleFileSelect(event)">
+        </div>
+    </div>
+        <input type="file" id="file-input" style="display: none;" accept=".xlsx, .xls" onchange="handleFileSelect(event)">
+        <!-- Nút Upload, ẩn ban đầu -->
+        <button id="upload-btn" onclick="uploadFile()" class="btn" style="display: none;">Tải</button>
+        <div style="text-align: right; margin-top: 20px;">
+            <a href="{% url 'export_invoice_data' %}" class="btn btn-success">Xuất dữ liệu dạng bảng</a>
+        </div>
+        <!-- Nút Xuất dữ liệu Google Sheet -->
+        <div style="text-align: right; margin-top: 30px;">
+            <a href="{% url 'export_to_google_sheets' %}" class="btn btn-success">Xuất dữ liệu Google Sheet</a>
+        </div>
+        <!-- Nút Call API -->
+        <div style="text-align: right; margin-top: 30px;">
+            <button id="call-api-btn" class="btn" onclick="callAPI()">Call API</button>
+        </div>
+
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Mã Hóa Đơn</th>
+                <th>Tổng Giá Trị Hóa Đơn</th>
+                <th>Chi Tiết Đơn Hàng</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in page_obj %}
+                <tr>
+                    <td>{{ invoice.ma_hoa_don }}</td>
+                    <td>{{ invoice.tong_gia }}</td> 
+                    <td>
+                        <a href="{% url 'invoice_detail' invoice.pk %}">Xem chi tiết</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">Không có đơn hàng phù hợp.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <script>
+        function toggleOptions() {
+            const options = document.getElementById("options");
+            options.style.display = options.style.display === "none" ? "block" : "none";
+        }
+    
+        // Close the options when clicking outside
+        document.addEventListener('click', function(event) {
+            const options = document.getElementById("options");
+            const isClickInside = document.querySelector(".plus-container").contains(event.target);
+            if (!isClickInside && options.style.display === "block") {
+                options.style.display = "none";
+            }
+        });
+
+        function handleFileSelect(event) {
+            const fileInput = event.target;
+            const uploadBtn = document.getElementById('upload-btn');
+    
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileName = file.name;
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+                const fileSize = file.size;
+    
+                // Validate file type and size
+                if (fileExtension !== 'xlsx' && fileExtension !== 'xls') {
+                    alert("Chỉ nhận file Excel (.xlsx hoặc .xls).");
+                    fileInput.value = ''; // Clear invalid file
+                    uploadBtn.style.display = 'none';
+                    return;
+                }
+    
+    
+                uploadBtn.textContent = `Upload (${fileName})`;
+                uploadBtn.style.display = 'inline-block';
+            } else {
+                uploadBtn.style.display = 'none';
+            }
+        }
+    
+        function uploadFile() {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+    
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+    
+                const uploadBtn = document.getElementById('upload-btn');
+                uploadBtn.disabled = true; // Disable button during upload
+    
+                fetch('/import_excel/', {  // Đường dẫn API mới cho việc import invoice
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}', // CSRF token for security
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    uploadBtn.disabled = false; // Re-enable button
+    
+                    if (data.status === 'error') {
+                        alert(data.message);  // Show server error message
+                    } else if (data.status === 'success') {
+                        alert("Dữ liệu đã được lưu thành công.");
+                        window.location.reload();  // Reload page to show new data
+                    }
+                })
+            }
+        }
+        
+        
+        function addInvoiceToTable(invoice) {
+            const tableBody = document.querySelector('table tbody');
+    
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${invoice.ma_hoa_don}</td>
+                <td>${invoice.tong_gia}</td>
+                <td><a href="/invoices/${invoice.id}/">View Details</a></td>
+            `;
+    
+            tableBody.insertBefore(newRow, tableBody.firstChild);
+        }
+
+        function callAPI() {
+            // Điều hướng tới URL khi nút "Call API" được nhấn
+            window.location.href = "http://127.0.0.1:8000/get-ip/";  // Điều hướng đến API để lấy địa chỉ IP
+        }
+
+    </script>
+    
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; Trang đầu</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Trang trước</a>
+        {% else %}
+            <a class="disabled">&laquo; Trang đầu</a>
+            <a class="disabled">Trang trước</a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <strong>{{ num }}</strong>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Tiếp</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Trang cuối &raquo;</a>
+        {% else %}
+            <a class="disabled">Tiếp</a>
+            <a class="disabled">Trang cuối &raquo;</a>
+        {% endif %}
+    </div>
+
+    <h2>Tải File CSV</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Tải</button>
+    </form>
+    
+    {% if success %}
+        <p>Tải dữ liệu thành công!</p>
+    {% endif %}
+    <div id="invoices"></div>
+</body>
+</html>
+

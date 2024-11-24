@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biểu đồ với Sidebar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styling */
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Sidebar styling */
+        #sidebar {
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            height: 100vh;
+            transition: width 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            overflow: hidden;
+        }
+
+        /* Thu gọn sidebar */
+        #sidebar.collapsed {
+            width: 60px;
+        }
+
+        /* Sidebar toggle button */
+        .sidebar-toggle {
+            font-size: 18px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        /* Sidebar options */
+        #sidebar ul {
+            list-style-type: none;
+            width: 100%;
+        }
+
+        #sidebar ul li {
+            padding: 15px 20px;
+            cursor: pointer;
+            text-align: left;
+            color: #bbb;
+            font-size: 16px;
+            position: relative;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #sidebar ul li:hover {
+            background-color: #444;
+            color: #fff;
+        }
+
+        #sidebar ul li.active {
+            background-color: #555;
+            color: #fff;
+            border-left: 4px solid #1e90ff;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        /* Ẩn chữ khi sidebar thu gọn */
+        #sidebar.collapsed ul li span {
+            display: none;
+        }
+
+        #sidebar.collapsed .sidebar-toggle {
+            font-size: 24px;
+        }
+
+        /* Main content styling */
+        #main-content {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: margin-left 0.3s;
+        }
+
+        #sidebar.collapsed + #main-content {
+            margin-left: 60px;
+        }
+
+        /* Chart container */
+        .chart-container {
+            display: none;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .chart-container.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </div>
+        <ul>
+            <li onclick="showChart('revenueByMonthChart')" class="active"><span>Doanh thu theo tháng</span></li>
+            <li onclick="showChart('customerGroupChart')"><span>Nhóm khách hàng</span></li>
+            <li onclick="showChart('storeSalesChart')"><span>Tổng tạm tính theo cửa hàng</span></li>
+        </ul>
+    </div>
+
+    <!-- Main content -->
+    <div id="main-content">
+        <!-- Biểu đồ doanh thu theo tháng -->
+        <div id="revenueByMonthChart" class="chart-container active">
+            <canvas id="revenueByMonthCanvas"></canvas>
+        </div>
+        <!-- Biểu đồ nhóm khách hàng -->
+        <div id="customerGroupChart" class="chart-container">
+            <canvas id="customerGroupCanvas"></canvas>
+        </div>
+        <!-- Biểu đồ tổng tạm tính theo cửa hàng -->
+        <div id="storeSalesChart" class="chart-container">
+            <canvas id="storeSalesCanvas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        // Show selected chart
+        function showChart(chartId) {
+            const charts = document.querySelectorAll('.chart-container');
+            charts.forEach(chart => chart.classList.remove('active'));
+            document.getElementById(chartId).classList.add('active');
+
+            const tabs = document.querySelectorAll('#sidebar ul li');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`#sidebar ul li[onclick="showChart('${chartId}')"]`).classList.add('active');
+        }
+
+        // Khởi tạo biểu đồ doanh thu theo tháng
+        const revenueByMonthCtx = document.getElementById('revenueByMonthCanvas').getContext('2d');
+        const revenueByMonthChart = new Chart(revenueByMonthCtx, {
+            type: 'line',
+            data: {
+                labels: JSON.parse('{{ monthly_revenue_labels|escapejs }}'),
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: JSON.parse('{{ monthly_revenue_data|escapejs }}'),
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Khởi tạo biểu đồ tổng tạm tính theo cửa hàng
+        const storeSalesCtx = document.getElementById('storeSalesCanvas').getContext('2d');
+        const storeSalesChart = new Chart(storeSalesCtx, {
+            type: 'bar',
+            data: {
+                labels: JSON.parse('{{ store_sales_labels|escapejs }}'),
+                datasets: [{
+                    label: 'Tổng tạm tính (VNĐ)',
+                    data: JSON.parse('{{ store_sales_data|escapejs }}'),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+            // Khởi tạo biểu đồ tròn nhóm khách hàng
+            const customerGroupCtx = document.getElementById('customerGroupCanvas').getContext('2d');
+            const customerGroupChart = new Chart(customerGroupCtx, {
+                type: 'pie',
+                data: {
+                    labels: JSON.parse('{{ customer_group_labels|escapejs }}'),
+                    datasets: [{
+                        data: JSON.parse('{{ customer_group_data|escapejs }}'),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+                        ],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,  // Để biểu đồ thu nhỏ theo kích thước của canvas
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let value = context.raw;
+                                    let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    let percentage = ((value / total) * 100).toFixed(2) + '%';
+                                    return label + ': ' + percentage;
+                                }
+                            }
+                        }
+                    }
+                }
+            });                
+    if (typeof customerGroupChart === 'undefined') {
+        const customerGroupCtx = document.getElementById('customerGroupCanvas').getContext('2d');
+        const customerGroupChart = new Chart(customerGroupCtx, {
+            type: 'pie',
+            data: {
+                labels: JSON.parse('{{ customer_group_labels|escapejs }}'),
+                datasets: [{
+                    label: 'Số lượng khách hàng',
+                    data: JSON.parse('{{ customer_group_data|escapejs }}'),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+            }
+        });
+    } else {
+        // Nếu biến đã tồn tại, bạn có thể cập nhật dữ liệu nếu cần
+        customerGroupChart.data.labels = JSON.parse('{{ customer_group_labels|escapejs }}');
+        customerGroupChart.data.datasets[0].data = JSON.parse('{{ customer_group_data|escapejs }}');
+        customerGroupChart.update();
+    }
+    </script>
+</body>
+</html>

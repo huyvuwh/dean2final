@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Detail - {{ invoice.ma_hoa_don }}</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #555;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1em;
+            margin: 5px 0;
+        }
+
+        .total {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .invoice-info,
+        .form-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 48%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        form {
+            display: inline;
+        }
+
+        button {
+            background-color: #2c3e50;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3b4c5a;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2c3e50;
+            font-size: 0.9em;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #2c3e50;
+            transition: background-color 0.3s;
+        }
+
+        .back-link:hover {
+            background-color: #2c3e50;
+            color: #fff;
+        }
+
+        .quantity-input {
+            width: 60px;
+            padding: 5px;
+            font-size: 0.9em;
+            margin-right: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Chi tiết đơn hàng</h1>
+
+    <div class="container">
+        <div class="invoice-info">
+            <h2>Thông tin đơn hàng</h2>
+            <p><strong>Mã đơn hàng:</strong> {{ invoice.ma_hoa_don }}</p>
+            <p><strong>Cửa hàng:</strong> {{ invoice.ma_cua_hang.doanh_nghiep }}</p>
+            <p><strong>Khách hàng:</strong> {{ invoice.ma_kh }} - {{invoice.ma_kh.ma_nhom_kh.thong_tin_nhom_kh}}</p>
+            <p><strong>Ngày:</strong> {{ invoice.thang }}/{{ invoice.nam }}</p>
+            <p class="total">Tổng hóa đơn: {{ total_price }} VND</p>
+        </div>
+
+        <div class="form-section">
+            <h2>Cập nhật thông tin đơn hàng</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Cập nhật</button>
+            </form>
+        </div>
+    </div>
+
+    <h2>Invoice Details</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Mã Nhóm Hàng</th>
+                <th>Mặt Hàng</th>
+                <th>Số lượng bán</th>
+                <th>tổng</th>
+                <th>Xóa</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detail in invoice.invoicedetail_set.all %}
+            <tr>
+                <td>{{ detail.ma_hang.ma_hang }}</td>
+                <td>{{ detail.ma_hang.mat_hang }}</td>
+                <td>
+                    <form action="{% url 'update_invoice_detail' detail.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ detail.sl_ban }}" class="quantity-input" min="1">
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+                <td>{{ detail.tam_tinh }} VND</td>
+                <td>
+                    <form action="{% url 'delete_invoice_detail' detail.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit"
+                            onclick="return confirm('Are you sure you want to remove this product from the invoice?')">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">Không có thông tin chi tiết cho đơn hàng này</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'invoice_list' %}" class="back-link">Trở về</a>
+</body>
+
+</html>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+        {% endfor %}
+</ul>
+{% endif %}

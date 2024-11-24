@@ -1,0 +1,581 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden21 - Cây Cảnh Đẹp</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        /* Reset một số kiểu mặc định của trình duyệt */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Nền và kiểu chữ */
+        body {
+            background-color: #f5f5dc;
+            color: #333;
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background-color: #6b8e23;
+            color: white;
+            padding: 20px;
+        }
+        
+        /* Căn giữa logo và lời chào */
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* Khoảng cách giữa logo và lời chào */
+        }
+        
+        /* Logo */
+        .logo-container {
+            border-radius: 50%;
+            overflow: hidden;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .logo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Lời chào */
+        .welcome-text h1 {
+            font-size: 2em;
+        }
+        
+        .welcome-text p {
+            font-size: 1.2em;
+        }
+        
+        /* Địa chỉ */
+        .address-container {
+            display: flex;
+            justify-content: space-around; /* Căn đều ba địa chỉ */
+            margin-top: 5px;
+            gap: 20px;
+        }
+        
+        .address-container ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .address-container ul li {
+            margin: 2px 0;
+            font-size: 1em;
+        }
+        
+
+        /* Container chứa danh mục, giới thiệu doanh nghiệp, banner */
+        .container {
+            display: flex;
+            justify-content: space-between;
+            gap: 50px;
+            flex-wrap: wrap; /* Cho phép phần tử trong container xuống dòng khi không đủ chỗ */
+            padding: 20px;
+        }
+
+        /* Giới thiệu doanh nghiệp */
+        .gioi-thieu-doanh-nghiep {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            flex: 1 1 40%; /* Điều chỉnh chiều rộng với tỷ lệ */
+            
+        }
+
+        .gioi-thieu-doanh-nghiep h2 {
+            color: #6b8e23;
+            margin-bottom: 10px;
+            font-size: 1.6em;
+            text-align: center; /* Thêm dòng này để căn giữa chữ */
+        }
+
+        .gioi-thieu-doanh-nghiep p {
+            color: #333;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        /* Danh mục sản phẩm */
+        .danh-muc {
+            width: auto;
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            flex: 1 1 50%; /* Điều chỉnh chiều rộng với tỷ lệ */
+        }
+        
+        .danh-muc h2 {
+            margin-bottom: 15px;
+            color: #556b2f;
+            text-align: center; /* Thêm dòng này để căn giữa chữ */
+        }
+        
+        
+        .danh-muc-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .danh-muc-column {
+            width: 23%; /* Điều chỉnh để có 4 cột */
+            background-color: #eef5db; /* Màu nền theo HEX #eef5db */
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .danh-muc-column ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .danh-muc-column ul li {
+            padding: 5px 0;
+        }
+        
+        
+
+        /* Banner */
+        .banner {
+            width: 100%; /* Chiếm toàn bộ chiều rộng container */
+            max-width: 30%; /* Điều chỉnh chiều rộng tối đa của banner */
+            height: 400px;
+            position: relative;
+            margin-left: auto;
+            margin-top: 10px;
+            flex: 1 1 40%; /* Điều chỉnh chiều rộng banner bằng với phần giới thiệu công ty */
+        }
+        
+        /* Đảm bảo hình ảnh trong banner chiếm toàn bộ không gian */
+        .banner img {
+            width: 100%; /* Làm cho hình ảnh chiếm hết chiều rộng của container */
+            height: 100%; /* Đảm bảo hình ảnh phủ đầy chiều cao của banner */
+            object-fit: cover; /* Đảm bảo hình ảnh không bị méo và phù hợp với kích thước container */
+        }
+        
+
+
+
+
+        /* Phần tử bên dưới banner */
+        .green-service,
+        .hotline {
+            margin-top: 60px; /* Thêm khoảng cách giữa banner và phần tử dưới */
+        }
+        /* Giảm kích thước của hình ảnh trong banner */
+        
+
+        .slider-content {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slide {
+            width: 100%;
+            display: none;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .bx-prev, .bx-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .bx-prev {
+            left: 10px;
+        }
+
+        .bx-next {
+            right: 10px;
+        }
+
+        .bx-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .bx-pager-link {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #888;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .bx-pager-link.active {
+            background-color: #6b8e23;
+        }
+        .cay-ban-chay {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .cay-ban-chay h2 {
+            color: #556b2f;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .product-grid {
+            display: flex; /* Sử dụng flexbox để căn chỉnh các item */
+            justify-content: center; /* Căn giữa các item */
+            gap: 20px; /* Khoảng cách giữa các item */
+        }
+        
+        .product-item {
+            text-align: center;
+        }
+        
+        .product-item img {
+            width: 150px; /* Đặt chiều rộng của ảnh */
+            height: 150px; /* Đặt chiều cao của ảnh */
+            object-fit: cover; /* Đảm bảo ảnh không bị méo */
+            border-radius: 50%; /* Tạo hình tròn cho ảnh */
+        }
+        
+        .product-item p {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        /* Hotline */
+        .hotline {
+            background-color: #eef5db;
+            padding: 10px;
+            text-align: center;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .hotline p {
+            margin: 5px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #FF0000;
+        }
+
+        .hotline .contact-button {
+            padding: 12px 24px;
+            background-color: #6b8e23;
+            color: white;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .hotline .contact-button:hover {
+            background-color: #5a6e20;
+        }
+        .order-list-section {
+            background-color: #f9f9f9; /* Màu nền nhẹ nhàng */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Tạo bóng mờ để tạo chiều sâu */
+            margin: 20px 0;
+        }
+    
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6b8e23; /* Màu chữ tối để dễ đọc */
+            margin-bottom: 10px;            ;
+            text-align: center; /* Thêm dòng này để căn giữa chữ */
+        }
+    
+        .section-description {
+            font-size: 16px;
+            color: #555; /* Màu chữ nhạt hơn cho phần mô tả */
+            text-align: center; /* Thêm dòng này để căn giữa chữ */;
+        }
+    
+        .btn-view-invoice {
+            color: #007bff; /* Màu xanh lam cho liên kết */
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #007bff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s ease; /* Hiệu ứng chuyển tiếp khi hover */
+        }
+    
+        .btn-view-invoice:hover {
+            background-color: #007bff;
+            color: white; /* Màu chữ trắng khi hover */
+            border-color: #0056b3; /* Màu viền tối hơn khi hover */
+        }
+        /* Căn giữa tiêu đề và các iframe */
+        .google-map {
+            text-align: center;
+        }
+
+        .address-title {
+            color: #007BFF; /* Màu xanh giống như "Danh mục sản phẩm" */
+            font-size: 1.5em; /* Kích thước chữ */
+            margin-bottom: 20px;
+        }
+
+        /* Căn giữa các iframe */
+        .map-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .map-container iframe {
+            margin: 10px;
+        }
+
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <div class="logo-container">
+            <img src="https://i.pinimg.com/564x/dd/0a/92/dd0a922856dbb8715b48ed8559c7ff92.jpg" alt="Garden21 Logo" class="logo">
+        </div>
+        <div class="welcome-text">
+            <h1>Chào mừng đến với Garden21</h1>
+            <p>Nơi chia sẻ những kinh nghiệm và sản phẩm cây cảnh đẹp.</p>
+        </div>
+        <div class="address-container">
+            <ul>
+                <li><strong>Cơ sở 1:</strong> 144 Hàm Nghi, Phường Thạc Gián, Quận Thanh Khê, TP Đà Nẵng.</li>
+                <li><strong>Cơ sở 2:</strong> 200 Tôn Đức Thắng, Phường Hòa Minh, Quận Liên Chiểu, TP Đà Nẵng.</li>
+                <li><strong>Cơ sở 3:</strong> 90 Nguyễn Văn Thoại, Phường Mỹ An, Quận Ngũ Hành Sơn, TP Đà Nẵng.</li>
+            </ul>
+        </div>
+        <div class="order-list-section">
+            <p class="section-description"> <a href="{% url 'invoice_list' %}" class="btn-view-invoice">Danh sách hóa đơn</a>.</p>
+        </div>
+    </div>
+</header>
+
+    
+
+    <div class="container">
+        
+
+        
+        <!-- Giới thiệu doanh nghiệp -->
+        <section class="gioi-thieu-doanh-nghiep">
+            <h2>Giới Thiệu Về Garden21</h2>
+            <p>Garden21 là thương hiệu uy tín chuyên cung cấp các sản phẩm cây cảnh Đẹp, chất lượng cao, giúp không gian sống trở nên xanh tươi và sinh động. Với sứ mệnh mang lại không chỉ cây cảnh mà còn là vẻ đẹp thiên nhiên vào từng ngôi nhà, chúng tôi cam kết mang đến dịch vụ tốt nhất, sản phẩm chất lượng, giá cả hợp lý và giao hàng tận nơi nhanh chóng.</p>
+            <p>Chúng tôi tin rằng, một không gian xanh sẽ giúp tinh thần thoải mái, dễ chịu và nâng cao chất lượng cuộc sống.</p>
+
+            <!-- Phần Hotline -->
+            <div class="hotline">
+                <p><strong>Hotline 24/7:</strong></p>
+                <p>Miền Nam: 028 73002011</p>
+                <p>Miền Trung: 070 73002099</p>
+            </div>
+        </section>
+
+        
+
+        <!-- Banner (Được chuyển xuống dưới đây) -->
+        <section class="banner">
+            <div class="slider-container">
+                <div class="slider-content" id="slider-content">
+                    <div class="slide active">
+                        <img src="https://i.pinimg.com/564x/ba/d6/20/bad6205364ab3affb70fd3ecfdeaf6d6.jpg" alt="Banner 1">
+                    </div>
+                    <div class="slide">
+                        <img src="https://i.pinimg.com/564x/44/8c/fc/448cfca70d1ab364778ea24ccb795e8b.jpg" alt="Banner 2">
+                    </div>
+                    <div class="slide">
+                        <img src="https://i.pinimg.com/564x/2f/9f/e3/2f9fe39db5e422ff8e805b0f9769cde0.jpg" alt="Banner 3">
+                    </div>
+                </div>
+                <!-- Nút điều khiển trái, phải -->
+                <div class="bx-prev" onclick="prevSlide()">&#10094;</div>
+                <div class="bx-next" onclick="nextSlide()">&#10095;</div>
+            </div>
+            <!-- Controls -->
+            <div class="bx-controls">
+                <a href="#" class="bx-pager-link" data-slide-index="0"></a>
+                <a href="#" class="bx-pager-link" data-slide-index="1"></a>
+                <a href="#" class="bx-pager-link" data-slide-index="2"></a>
+            </div>
+        </section>
+    </div>
+    
+    <section class="danh-muc">
+        <h2>Danh Mục Sản Phẩm</h2>
+        <div class="danh-muc-grid">
+            <div class="danh-muc-column">
+                <ul>
+                    <li>Chậu treo nhựa móc kém</li>
+                    <li>Cây nga mi</li>
+                    <li>Cây không khí</li>
+                    <li>Chậu để bàn mini gốm sứ Bát Tràng</li>
+                    <li>Sen đá Kim cương</li>
+                    <li>Xương rồng thần long</li>
+                </ul>
+            </div>
+            <div class="danh-muc-column">
+                <ul>
+                    <li>Sen đá viền hồng</li>
+                    <li>Hoa phong lữ thảo</li>
+                    <li>Phân nén sơ dừa (1v)</li>
+                    <li>Tiểu cảnh chậu gỗ</li>
+                    <li>Lồng thủy tinh</li>
+                    <li>Cây kim tiền</li>
+                </ul>
+            </div>
+            <div class="danh-muc-column">
+                <ul>
+                    <li>Trúc quân tử</li>
+                    <li>Đất sạch trồng Tribat</li>
+                    <li>Xương rồng bóng vàng</li>
+                    <li>Sen đá móng rồng</li>
+                    <li>Linh sam</li>
+                    <li>Cây lưỡi hổ</li>
+                </ul>
+            </div>
+            <div class="danh-muc-column">
+                <ul>
+                    <li>Cây hồng môn</li>
+                    <li>Sen đá vàng cổ thụ</li>
+                    <li>Sen đá Sedum cơm</li>
+                    <li>Chậu trụ treo</li>
+                    <li>Sen đá sen kim</li>
+                    <li>Chậu gốm sứ Bát Tràng mini</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- Cây Bán Chạy -->
+    <section class="cay-ban-chay">
+        <h2>Cây Bán Chạy</h2>
+        <div class="product-grid">
+            <div class="product-item">
+                <img src="https://i.pinimg.com/564x/53/cd/3e/53cd3e47f7a0ac95d069d3f18849e37a.jpg" alt="Sen đá kim cương">
+                <p>Sen đá Kim Cương</p>
+            </div>
+            <div class="product-item">
+                <img src="https://i.pinimg.com/736x/e1/b4/7c/e1b47c4d85d88b22ed11b1aa2fc95e16.jpg" alt="Phong lan lữ thảo">
+                <p>Phong Lan Lữ Thảo</p>
+            </div>
+            <div class="product-item">
+                <img src="https://i.pinimg.com/564x/a9/eb/4e/a9eb4e5ad303de0fe57fbdfe002fed10.jpg" alt="Cây lưỡi hổ">
+                <p>Cây Lưỡi Hổ</p>
+            </div>
+            <div class="product-item">
+                <img src="https://i.pinimg.com/564x/47/7b/1a/477b1ac4d292055ac25400d7d65a33c4.jpg" alt="Linh Sam">
+                <p>Linh Sam</p>
+            </div>
+            <div class="product-item">
+                <img src="https://i.pinimg.com/736x/e6/59/38/e65938f8de7aaaf27055f3ea8fd7eee4.jpg" alt="Xương rồng thần long">
+                <p>Xương rồng thần long</p>
+            </div>
+            <div class="product-item">
+                <img src="https://i.pinimg.com/564x/07/83/5b/07835b24374107246fcc5f06bad8658d.jpg" alt="Sen đá Sedum cơm">
+                <p>Sen đá Sedum cơm</p>
+            </div>
+            <div class="product-item">
+                <img src="https://i.pinimg.com/564x/16/de/ba/16deba47064149f409a6d65dadf10495.jpg" alt="Cây kim tiền">
+                <p>Cây kim tiền</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Google Maps -->
+    <section class="google-map">
+        <h3>Địa chỉ các cơ sở trên Google Maps:</h3>
+        <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.090241421291!2d108.20826551071447!3d16.060806284553266!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314219b44a5931c3%3A0x70222294d7653cdf!2zMTQ0IEjDoG0gTmdoaSwgVGjhuqFjIEdpw6FuLCBUaGFuaCBLaMOqLCDEkMOgIE7hurVuZyA1NTAwMDAsIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1730993998670!5m2!1svi!2s" 
+            width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy">
+        </iframe>
+        <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.211134292944!2d108.23810821071424!3d16.054529884558594!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3142177dad518abd%3A0x50b69af2e50d146a!2zOTAgTmd1eeG7hW4gVsSDbiBUaG_huqFpLCBQLCBOZ8WpIEjDoG5oIFPGoW4sIMSQw6AgTuG6tW5nIDU1MDAwMCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1730995933662!5m2!1svi!2s" 
+            width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+        <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.1602259810497!2d108.16904331071431!3d16.05717318455633!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31421919e2f32817%3A0x3e0e344b6b1d3fcf!2zMjAwIFTDtG4gxJDhu6ljIFRo4bqvbmcsIEhvw6AgTWluaCwgTGnDqm4gQ2hp4buDdSwgxJDDoCBO4bq1bmcgNTUwMDAwLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1730995966189!5m2!1svi!2s" 
+            width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+    </section>
+
+    <script>
+        // JavaScript để điều khiển slider
+        const pagerLinks = document.querySelectorAll('.bx-pager-link');
+        const sliderContent = document.getElementById('slider-content');
+        const slides = document.querySelectorAll('.slide');
+        let currentIndex = 0;
+
+        // Hàm để hiển thị slide
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                pagerLinks[i].classList.remove('active');
+            });
+            slides[index].classList.add('active');
+            pagerLinks[index].classList.add('active');
+        }
+
+        // Gán sự kiện click cho mỗi pager link
+        pagerLinks.forEach((link, index) => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                currentIndex = index;
+                showSlide(index);
+            });
+        });
+
+        // Hàm để chuyển sang slide trước
+        function prevSlide() {
+            currentIndex = (currentIndex === 0) ? slides.length - 1 : currentIndex - 1;
+            showSlide(currentIndex);
+        }
+
+        // Hàm để chuyển sang slide sau
+        function nextSlide() {
+            currentIndex = (currentIndex === slides.length - 1) ? 0 : currentIndex + 1;
+            showSlide(currentIndex);
+        }
+
+        // Hiển thị slide đầu tiên khi trang tải
+        showSlide(0);
+
+        // Thêm chức năng tự động chuyển slide mỗi 3 giây
+        setInterval(() => {
+            nextSlide();
+        }, 3000); // 3000ms = 3 giây
+
+    </script>
+</body>
+</html>

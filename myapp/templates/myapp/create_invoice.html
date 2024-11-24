@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo mới Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            max-width: 600px;
+            margin: auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 2px 2px 12px #aaa;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .product-list {
+            max-height: 200px; /* Chiều cao tối đa cho khung cuộn */
+            overflow-y: auto; /* Tạo khung cuộn dọc */
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .product-item {
+            display: flex; /* Sử dụng Flexbox để đặt các phần tử trên cùng một hàng */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            margin-bottom: 10px;
+        }
+
+        .product-item input[type="number"] {
+            visibility: hidden; /* Ẩn input số lượng mặc định */
+            position: absolute; /* Vị trí tuyệt đối để không chiếm không gian */
+            margin-left: 10px;
+        }
+
+        .product-item input[type="checkbox"]:checked + label + input[type="number"] {
+            visibility: visible; /* Hiển thị input số lượng khi checkbox được chọn */
+            position: static; /* Đặt lại vị trí để input có thể lấy tiêu điểm */
+        }
+
+        .total-price {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        fetch('/api/create-order/', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+    },
+    body: JSON.stringify({
+        ma_kh: "KH12345",  // Mã khách hàng có thể là cũ hoặc mới
+        product: "Product 1",
+        quantity: 2,
+        order_date: "2024-11-13",
+        name: "Customer Name"
+    })
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        alert(`Đơn hàng tạo thành công! Mã khách hàng: ${data.customer_ma_kh}`);
+    } else {
+        alert('Lỗi: ' + data.message);
+    }
+})
+.catch(error => {
+    console.error('Error:', error);
+});
+
+    </style>
+    <script>
+        function toggleQuantityInput(checkbox) {
+            const quantityInput = checkbox.nextElementSibling.nextElementSibling; // Lấy trường số lượng kế tiếp
+            if (checkbox.checked) {
+                quantityInput.style.visibility = 'visible'; // Hiển thị input số lượng khi checkbox được chọn
+                quantityInput.style.position = 'static'; // Đặt lại vị trí để input có thể lấy tiêu điểm
+            } else {
+                quantityInput.style.visibility = 'hidden'; // Ẩn input số lượng khi checkbox không được chọn
+                quantityInput.value = ''; // Reset giá trị của input số lượng
+                quantityInput.style.position = 'absolute'; // Đặt lại vị trí để không chiếm không gian
+            }
+            calculateTotalPrice(); // Tính lại tổng giá
+        }
+
+        function filterProducts() {
+            const searchInput = document.getElementById('productSearch').value.toLowerCase();
+            const products = document.querySelectorAll('.product-item');
+
+            products.forEach(item => {
+                const label = item.querySelector('label').textContent.toLowerCase();
+                if (label.includes(searchInput)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function calculateTotalPrice() {
+            const checkboxes = document.querySelectorAll('input[name="product_ids"]:checked');
+            let total = 0;
+
+            checkboxes.forEach((checkbox) => {
+                const quantityInput = checkbox.nextElementSibling.nextElementSibling;
+                const quantity = quantityInput.style.visibility === 'visible' && quantityInput.value.trim() !== '' ? parseInt(quantityInput.value) : 0;
+                const price = parseFloat(checkbox.dataset.price); // Lấy giá từ thuộc tính dữ liệu
+                total += quantity * price; // Cộng tổng giá
+            });
+
+            document.getElementById('totalPrice').textContent = 'Tổng giá: ' + total.toLocaleString() + ' VNĐ'; // Hiển thị tổng giá
+            return(total)
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('invoiceForm').addEventListener('submit', function (event) {
+                event.preventDefault(); // Ngăn chặn hành động submit mặc định
+                let isValid = true; // Đặt biến kiểm tra tính hợp lệ
+                // Lấy giá trị từ các trường
+                const maCuaHang = document.querySelector('[name="ma_cua_hang"]').value;
+                const maKh = document.querySelector('[name="ma_kh"]').value;
+                const nam = new Date().getFullYear();
+                const thang = new Date().getMonth() + 1; // tháng bắt đầu từ 0
+
+                // Lấy thông tin sản phẩm đã chọn và số lượng
+                const productIds = [];
+                const quantities = [];
+                const checkboxes = document.querySelectorAll('input[name="product_ids"]:checked');
+
+                checkboxes.forEach((checkbox) => {
+                    productIds.push(checkbox.value);
+                    const quantityInput = checkbox.nextElementSibling.nextElementSibling;
+                    if (quantityInput.style.visibility === 'visible' && quantityInput.value.trim() !== '') {
+                        quantities.push(quantityInput.value);
+                    } else {
+                        isValid = false; // Đặt biến không hợp lệ
+                    }
+                });
+
+                // Kiểm tra tính hợp lệ trước khi gửi
+                if (productIds.length === 0 || !isValid) {
+                    alert('Vui lòng chọn ít nhất một sản phẩm và nhập số lượng.');
+                    return;
+                }
+
+                // Tạo đối tượng JSON để gửi
+                const data = {
+                    ma_cua_hang: maCuaHang,
+                    ma_kh: maKh,
+                    nam: nam,
+                    thang: thang,
+                    product_ids: productIds,
+                    quantities: quantities,
+                    tam_tinh: calculateTotalPrice(),
+                };
+
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch('/create-invoice1/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data); // In ra phản hồi để kiểm tra
+                    if (data.success) {
+                        alert('Đã tạo mới Invoice thành công!');
+                        // Reset form hoặc điều chỉnh khác nếu cần thiết
+                        window.location.href = '/invoices/';
+                    } else {
+                        alert('Lỗi khi tạo Invoice mới.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+    <h1>Tạo mới Invoice</h1>
+    <form id="invoiceForm" novalidate>
+        {% csrf_token %}
+        <h3>Thông tin Invoice</h3>
+        <label for="ma_cua_hang">Chọn cửa hàng:</label>
+        <select name="ma_cua_hang" id="ma_cua_hang">
+            {% for store in stores %}
+            <option value="{{ store.ma_cua_hang }}">{{ store.doanh_nghiep }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="ma_kh">Chọn nhóm khách hàng:</label>
+        <select name="ma_kh" id="ma_kh">
+            {% for customer_group in customer_groups %}
+            <option value="{{ customer_group.ma_nhom_kh }}">{{ customer_group.thong_tin_nhom_kh }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="productSearch">Tìm kiếm sản phẩm:</label>
+        <input type="text" id="productSearch" class="search-input" onkeyup="filterProducts()" placeholder="Nhập tên sản phẩm...">
+
+        <h3>Chọn sản phẩm:</h3>
+        <div class="product-list">
+            {% for product in products %}
+            <div class="product-item">
+                <input type="checkbox" name="product_ids" value="{{ product.ma_hang }}" data-price="{{ product.don_gia }}"
+                    onclick="toggleQuantityInput(this)">
+                <label>{{ product.mat_hang }} ({{ product.don_gia }} VNĐ)</label>
+                <input type="number" name="quantities" placeholder="Số lượng" required oninput="calculateTotalPrice()">
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="total-price" id="totalPrice">Tổng giá: 0 VNĐ</div>
+        
+        <button type="submit">Tạo Invoice</button>
+    </form>
+</body>
+
+</html>

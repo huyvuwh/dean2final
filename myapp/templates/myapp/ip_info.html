@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin IP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #5f6368;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* Style cho form export */
+        .export-form {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Thông Tin Địa Chỉ IP</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Thông Tin</th>
+                <th>Giá Trị</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Địa chỉ IP</td>
+                <td>{{ data.ip }}</td>
+            </tr>
+            <tr>
+                <td>Thành phố</td>
+                <td>{{ data.city }}</td>
+            </tr>
+            <tr>
+                <td>Vùng</td>
+                <td>{{ data.region }}</td>
+            </tr>
+            <tr>
+                <td>Quốc gia</td>
+                <td>{{ data.country }}</td>
+            </tr>
+            <tr>
+                <td>Vĩ độ</td>
+                <td>{{ data.latitude }}</td>
+            </tr>
+            <tr>
+                <td>Kinh độ</td>
+                <td>{{ data.longitude }}</td>
+            </tr>
+            <tr>
+                <td>ISP</td>
+                <td>{{ data.isp }}</td>
+            </tr>
+            <tr>
+                <td>Hostname</td>
+                <td>{{ data.hostname }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<div class="footer">
+    <p>Được phát triển bởi nhóm 1 - Đề án 2 - 47K29</p>
+</div>
+
+</body>
+</html>
+
+

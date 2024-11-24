@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xuất dữ liệu lên Google Sheets</title>
+    <style>
+        /* CSS cho toàn bộ trang */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f6f8;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        
+        /* Khung chứa nội dung */
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        /* Thông báo thành công */
+        .toast-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #4CAF50;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Form xuất dữ liệu */
+        .form-container {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Lưu ý */
+        .note {
+            text-align: left;
+            color: black;
+            margin-top: 20px;
+        }
+    
+        .note-highlight {
+            color: red; /* Màu chữ cho "Lưu ý" */
+        }
+    
+        .highlight {
+            color: red; /* Màu chữ cho "công khai" và "chỉnh sửa" */
+            font-style: italic;
+        }
+
+        /* Nút Google Sheet và Dashboard Looker */
+        .sheet-link .btn, .looker-link .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .sheet-link .btn:hover, .looker-link .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Xuất dữ liệu lên Google Sheets</h2>
+
+    <!-- Thông báo thành công có nút OK -->
+    {% if messages %}
+        <div class="toast-container">
+            {% for message in messages %}
+                <div class="toast" id="toast-{{ forloop.counter }}">
+                    <span>{{ message }}</span>
+                    <button class="btn-close" onclick="closeToast('toast-{{ forloop.counter }}')">OK</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Form Xuất Dữ Liệu -->
+    <form method="POST" class="form-container">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_sheet_url">Google Sheet URL:</label>
+            {{ form.sheet_url }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Xuất dữ liệu</button>
+    </form>
+
+    <!-- Lưu ý -->
+    <div class="note">
+        <strong>Lưu ý:</strong><br>
+        Để Google Sheet ở chế độ <em>công khai</em> và cấp quyền <em>chỉnh sửa</em>.<br>
+    </div>
+
+    <!-- Nút Xem Google Sheet và Dashboard Looker -->
+    {% if data_exported %}
+        <div class="sheet-link">
+            <a href="{{ sheet_url }}" target="_blank" class="btn">Xem Google Sheet</a>
+        </div>
+        <div class="looker-link">
+            <a href="https://lookerstudio.google.com/reporting/63e8a6dd-60af-41b2-a27e-07e01e646a0b/page/hPWRE" 
+               target="_blank" 
+               onclick="refreshLooker()" 
+               class="btn">Xem Dashboard Looker</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function closeToast(toastId) {
+        const toast = document.getElementById(toastId);
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 500);
+    }
+
+    function refreshLooker() {
+        window.open("https://lookerstudio.google.com/reporting/63e8a6dd-60af-41b2-a27e-07e01e646a0b/page/hPWRE", "_blank");
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Hóa Đơn</title>
+    <!-- Thêm Bootstrap vào project -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Link CSS DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Danh sách Hóa Đơn</h1>
+
+        <!-- Ô tìm kiếm -->
+        <input type="text" class="form-control mb-3" id="search" placeholder="Tìm kiếm..." oninput="searchTable()" style="width: 300px;">
+
+        <!-- Phần filter-container -->
+        <div class="filter-container d-flex align-items-center">
+            <select id="filter-field" class="form-control mr-2" onchange="updateFilterValues()">
+                <option value="">Chọn trường lọc</option>
+                <option value="ma_cua_hang">Mã cửa hàng</option>
+                <option value="nam">Năm</option>
+                <option value="thang">Tháng</option>
+                <option value="nhom_hang">Nhóm hàng</option>
+                <option value="mat_hang">Mặt hàng</option>
+            </select>
+
+            <select id="filter-value" class="form-control mr-2" disabled>
+                <option value="">Chọn giá trị</option>
+            </select>
+
+            <button class="btn btn-primary" onclick="applyFilter()">Filter</button>
+        </div>
+
+        <!-- Bảng dữ liệu hóa đơn -->
+        <table id="myTable" class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th data-filter-field="ma_cua_hang">Mã cửa hàng</th>
+                    <th data-filter-field="nam">Năm</th>
+                    <th data-filter-field="thang">Tháng</th>
+                    <th data-filter-field="ma_hoa_don">Mã hóa đơn</th>
+                    <th data-filter-field="thong_tin_nhom_kh">Thông tin nhóm khách hàng</th>
+                    <th data-filter-field="nhom_hang">Nhóm hàng</th>
+                    <th data-filter-field="mat_hang">Mặt hàng</th>
+                    <th>Đơn vị tính</th>
+                    <th>Số lượng bán</th>
+                    <th>Đơn giá</th>
+                    <th>Tạm tính</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceTable">
+                {% for invoice in invoice_data %}
+                    <tr class="invoice-row" data-ma_cua_hang="{{ invoice.ma_cua_hang }}"
+                        data-nam="{{ invoice.nam }}" data-thang="{{ invoice.thang }}"
+                        data-nhom_hang="{{ invoice.nhom_hang }}" data-mat_hang="{{ invoice.mat_hang }}">
+                        <td>{{ invoice.ma_cua_hang }}</td>
+                        <td>{{ invoice.nam }}</td>
+                        <td>{{ invoice.thang }}</td>
+                        <td>{{ invoice.ma_hoa_don }}</td>
+                        <td>{{ invoice.thong_tin_nhom_kh }}</td>
+                        <td>{{ invoice.nhom_hang }}</td>
+                        <td>{{ invoice.mat_hang }}</td>
+                        <td>{{ invoice.dvt }}</td>
+                        <td>{{ invoice.sl_ban }}</td>
+                        <td>{{ invoice.don_gia }}</td>
+                        <td>{{ invoice.tam_tinh }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="11">Không có hóa đơn nào.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </div>
+            <div>
+                <span>
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="btn btn-outline-secondary">&laquo; Đầu</a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-secondary">Trước</a>
+                    {% endif %}
+                </span>
+                <span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-secondary">Tiếp</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-secondary">Cuối &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Nút chuyển thành dạng biểu đồ -->
+        <div class="text-right mt-3">
+            <a href="{% url 'chart' %}" class="btn btn-success">Hiển thị biểu đồ</a>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        function searchTable() {
+            let input = document.getElementById("search").value.toLowerCase();
+            let table = document.getElementById("myTable");
+            let rows = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < rows.length; i++) {
+                let cells = rows[i].getElementsByTagName("td");
+                let match = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    let cellContent = cells[j].textContent || cells[j].innerText;
+                    if (cellContent.toLowerCase().indexOf(input) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                rows[i].style.display = match ? "" : "none";
+            }
+        }
+
+        // Cập nhật các giá trị lọc
+        function updateFilterValues() {
+            const field = document.getElementById("filter-field").value;
+            const filterValueSelect = document.getElementById("filter-value");
+
+            filterValueSelect.disabled = !field;
+            if (!field) return;
+
+            let uniqueValues = [];
+
+            // Lấy các giá trị duy nhất từ các dòng trong bảng
+            const rows = document.querySelectorAll(".invoice-row");
+            rows.forEach(row => {
+                const value = row.getAttribute(`data-${field}`);
+                if (value && !uniqueValues.includes(value)) {
+                    uniqueValues.push(value);
+                }
+            });
+
+            // Cập nhật dropdown giá trị lọc
+            filterValueSelect.innerHTML = '<option value="">Chọn giá trị</option>';
+            uniqueValues.forEach(value => {
+                filterValueSelect.innerHTML += `<option value="${value}">${value}</option>`;
+            });
+        }
+
+        // Áp dụng lọc
+        function applyFilter() {
+            const field = document.getElementById("filter-field").value;
+            const value = document.getElementById("filter-value").value.toLowerCase();
+            const rows = document.querySelectorAll(".invoice-row");
+
+            rows.forEach(row => {
+                const cellValue = row.getAttribute(`data-${field}`).toLowerCase() || "";
+                row.style.display = cellValue === value || value === "" ? "" : "none";
+            });
+        }
+    </script>
+
+    <!-- Thêm Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
