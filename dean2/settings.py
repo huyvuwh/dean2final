@@ -122,7 +122,7 @@ STATICFILES_DIRS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'garden',
+        'NAME': 'dean2',
         'USER': 'nhom9',
         'PASSWORD': 'zlUI45O1QFG9POMKksUcMUeYeqrMNFT3',
         'HOST': 'dpg-ctdbbv1u0jms73f5uo60-a',  # ví dụ: 'localhost' hoặc host PostgreSQL trên Render
