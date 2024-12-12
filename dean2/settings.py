@@ -124,8 +124,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'dean2',
         'USER': 'nhom9',
-        'PASSWORD': 'zlUI45O1QFG9POMKksUcMUeYeqrMNFT3',
-        'HOST': 'dpg-ctdbbv1u0jms73f5uo60-a',  # ví dụ: 'localhost' hoặc host PostgreSQL trên Render
+        'PASSWORD': 'FGN4V8sCARF3hZYxEdI0nZYZECEk6e6y',
+        'HOST': 'dpg-ctdds556l47c73cgsih0-a',  # ví dụ: 'localhost' hoặc host PostgreSQL trên Render
         'PORT': '5432',  # port mặc định của PostgreSQL
     }
 }
