@@ -172,3 +172,5 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Thêm vào cuối file settings.py
+PORT = os.getenv("PORT", "8000")
