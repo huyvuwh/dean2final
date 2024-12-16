@@ -121,12 +121,12 @@ STATICFILES_DIRS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dean2_dolt',
-        'USER': 'nhom9',
-        'PASSWORD': 'FGN4V8sCARF3hZYxEdI0nZYZECEk6e6y',
-        'HOST': 'dpg-ctdds556l47c73cgsih0-a',  # ví dụ: 'localhost' hoặc host PostgreSQL trên Render
-        'PORT': '5432',  # port mặc định của PostgreSQL
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'dean2',  # Thay bằng tên database thực tế nếu khác
+        'USER': 'admin',
+        'PASSWORD': 'doanhuyvu0207',
+        'HOST': 'dean2.cbmes6gous5o.ap-southeast-2.rds.amazonaws.com',
+        'PORT': '3306',  # Port của MySQL
     }
 }
 
