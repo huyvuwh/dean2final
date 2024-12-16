@@ -122,10 +122,10 @@ STATICFILES_DIRS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dean2',  # Thay bằng tên database thực tế nếu khác
-        'USER': 'admin',
-        'PASSWORD': 'doanhuyvu0207',
-        'HOST': 'dean2.cbmes6gous5o.ap-southeast-2.rds.amazonaws.com',
+        'NAME': 'cloudcomputing',  # Thay bằng tên database thực tế nếu khác
+        'USER': 'cloudcomputing',
+        'PASSWORD': '123456789',
+        'HOST': 'cloudcomputing.cbmes6gous5o.ap-southeast-2.rds.amazonaws.com',
         'PORT': '3306',  # Port của MySQL
     }
 }
