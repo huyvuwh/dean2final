@@ -127,6 +127,9 @@ DATABASES = {
         'PASSWORD': '123456789',
         'HOST': 'cloudcomputing.cbmes6gous5o.ap-southeast-2.rds.amazonaws.com',
         'PORT': '3306',  # Port của MySQL
+        'OPTIONS': {
+            'ssl_disabled':True
+        }
     }
 }
 
